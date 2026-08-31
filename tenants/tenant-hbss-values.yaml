@@ -59,14 +59,10 @@ services:
       WORKPLACE_DM_PASSWORD:
         secretName: tenant-secrets
   bridge:
-    image:
-      tag: stg
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
   controlops-server:
-    image:
-      tag: stg
     env:
       DB_USER:
         secretKey: DB_USER
@@ -82,20 +78,14 @@ services:
       MONGODB_URI:
         secretName: tenant-secrets
   qraie-api-gateway:
-    image:
-      tag: stg-hbssv
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
   microservice-qraie:
-    image:
-      tag: stg-hbssv
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
   qraie-ui:
-    image:
-      tag: stg-hbssv
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
@@ -104,20 +94,14 @@ services:
       REDIS_PASSWORD:
         secretName: tenant-secrets
   wfm-api-gateway:
-    image:
-      tag: wfm-amrtr
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
   wfm-ui:
-    image:
-      tag: wfm-acetaxi
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
   wfm-microservice:
-    image:
-      tag: wfm-amrtr
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
@@ -125,26 +109,18 @@ services:
         secretKey: WFM_JWT_SECRETS_MAP
         secretName: tenant-secrets
   mcp-server:
-    image:
-      tag: stg-acetaxi
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
   mcp-client:
-    image:
-      tag: stg-acetaxi
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
   tranops-ui:
-    image:
-      tag: stg
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
   tranops-backend:
-    image:
-      tag: stg
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
