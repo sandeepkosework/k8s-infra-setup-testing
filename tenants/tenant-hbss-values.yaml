@@ -1,0 +1,194 @@
+# tenant.id must be lowercase (RFC 1123) — it's used verbatim in
+# Deployment/Service/PVC/Secret names. Apps that need an uppercase tenant
+# identifier get one automatically via the TENANT_ID env var, which the
+# chart derives as {{ .Values.tenant.id | upper }}.
+tenant:
+  id: hbss
+  name: hbss
+  namespace: hbss
+  # Matches the domain convention already established for this tenant in
+  # stage-helm-chart-bridge/k8s-infra-setup/tenants/tenant-hbss.yaml.
+  domain: hbss-bridgestg.qraie.ai
+imagePullSecrets:
+- ocir-regcred
+ingress:
+  enabled: true
+  className: nginx
+  tls:
+    enabled: false
+    secretName: ""
+# commonSecrets / tenantSecrets / serviceSecrets all default to sensible
+# Vault paths derived from tenant.id (see values.yaml) — no override needed
+# here; Vault has been seeded at secret/common and secret/tenants/hbss from
+# the pre-existing hbss-secrets/common-secrets K8s Secrets.
+persistence:
+  # Only consumed by prism-backend/voxflow, both disabled below (not part of
+  # hbss's real stack) — disabling here too so no orphaned PVCs get created.
+  prism-videos:
+    enabled: false
+  voxflow-agents:
+    enabled: false
+  voxflow-mcp:
+    enabled: false
+
+# The 9 keys migrated into secret/tenants/hbss were originally one flat
+# tenant-wide secret (not per-service), so every env var that used to read
+# from it needs to point at the tenantSecrets-backed Secret
+# (hbss-tenant-secrets) instead of this chart's per-service default
+# (hbss-<service>-secret, which nothing populates for this tenant).
+#
+# Image tags below come from hbss's real docker-compose.yml
+# (/hbss/deployment/infra-runner/deploy/hbss/docker-compose.yml), using each
+# service's *_blue variant (blue/green pairs collapse to one Deployment per
+# the chart's own design — see doc/decisions.md). Services not present in
+# that compose file at all (enrollment-api, iot-broker-*, prism-*, voxflow)
+# are disabled below — they were prototype-specific additions that leaked
+# into this chart's "generic" defaults, not part of hbss's real stack. This
+# is also the actual root cause of those services' CrashLoopBackOff pods.
+services:
+  qraie-redis-shared:
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  bridge-cp-conductor:
+    image:
+      tag: latest
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+      WORKPLACE_DM_PASSWORD:
+        secretName: tenant-secrets
+  bridge:
+    image:
+      tag: stg
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  controlops-server:
+    image:
+      tag: stg
+    env:
+      DB_USER:
+        secretKey: DB_USER
+        secretName: tenant-secrets
+      DB_PASSWORD:
+        secretName: tenant-secrets
+      MONGODB_URI:
+        secretName: tenant-secrets
+  erep-server:
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+      MONGODB_URI:
+        secretName: tenant-secrets
+  qraie-api-gateway:
+    image:
+      tag: stg-hbssv
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  microservice-qraie:
+    image:
+      tag: stg-hbssv
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  qraie-ui:
+    image:
+      tag: stg-hbssv
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  admin-panel:
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  wfm-api-gateway:
+    image:
+      tag: wfm-amrtr
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  wfm-ui:
+    image:
+      tag: wfm-acetaxi
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  wfm-microservice:
+    image:
+      tag: wfm-amrtr
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+      JWT_SECRETS_MAP:
+        secretKey: WFM_JWT_SECRETS_MAP
+        secretName: tenant-secrets
+  mcp-server:
+    image:
+      tag: stg-acetaxi
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  mcp-client:
+    image:
+      tag: stg-acetaxi
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  tranops-ui:
+    image:
+      tag: stg
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  tranops-backend:
+    image:
+      tag: stg
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+      MONGODB_URI:
+        secretName: tenant-secrets
+      # SLM_PASSWORD, JWT_SECRET, JWT_EXPIRES_IN, ELEVENLABS_API_KEY have no
+      # migrated value (not present in the old flat hbss-secrets) — left at
+      # the chart default, so these stay unset until provisioned in Vault at
+      # secret/tenants/hbss/tranops-backend.
+  acl-server:
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+  scheduler-agent:
+    env:
+      REDIS_PASSWORD:
+        secretName: tenant-secrets
+      RADICALE_AGENT_PASS:
+        secretName: tenant-secrets
+      CONDUCTOR_API_KEY:
+        secretName: tenant-secrets
+      # MEETING_API_KEY already defaults to secretName: common-secrets in
+      # the chart, and secret/common has been seeded — no override needed.
+  # Not present in hbss's real docker-compose.yml at all — disabled rather
+  # than left running with no real backing data/config for this tenant.
+  enrollment-api:
+    enabled: false
+  iot-broker-admin:
+    enabled: false
+  iot-broker-broker:
+    enabled: false
+  iot-broker-config:
+    enabled: false
+  iot-broker-data:
+    enabled: false
+  iot-broker-loconav-vision:
+    enabled: false
+  iot-broker-web:
+    enabled: false
+  prism-ui:
+    enabled: false
+  prism-backend:
+    enabled: false
+  prism-scanner:
+    enabled: false
+  voxflow:
+    enabled: false
