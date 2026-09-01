@@ -93,6 +93,7 @@ services:
     env:
       REDIS_PASSWORD:
         secretName: tenant-secrets
+      GITOPS_TRIGGER_TEST: "push-triggers-deploy-check"
   wfm-api-gateway:
     env:
       REDIS_PASSWORD:
