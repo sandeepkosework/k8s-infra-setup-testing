@@ -1,0 +1,10 @@
+# Minimal tenant file to validate ApplicationSet auto-discovery: pushing a
+# new tenants/tenant-*-values.yaml file should automatically produce a new
+# Argo CD Application and deploy it, with no manual Application creation.
+tenant:
+  id: testing
+  name: testing
+  namespace: testing
+  domain: testing.qraie.ai
+imagePullSecrets:
+- ocir-regcred
