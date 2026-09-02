@@ -9,6 +9,12 @@ tenant:
   domain: hbss-bridgestg.qraie.ai
 imagePullSecrets:
 - ocir-regcred
+# Vault runs on the hub cluster; this tenant's pods run on the spoke, which
+# can't resolve the hub-internal "vault.vault.svc" DNS name (chart default,
+# fine for a single-cluster deployment). Override with the cross-cluster
+# NodePort address instead.
+vault:
+  server: http://192.168.85.201:30820
 ingress:
   enabled: true
   className: nginx
