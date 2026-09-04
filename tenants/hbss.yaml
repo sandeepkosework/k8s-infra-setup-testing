@@ -22,7 +22,10 @@ vault:
   server: http://192.168.85.201:30820
 ingress:
   enabled: true
-  className: nginx
+  # spoke-1's ingress-nginx controller was installed with a non-default
+  # --ingress-class (see IngressClass "stg-spoke-nginx", not "nginx") --
+  # the chart's own default only matches a plain "nginx" IngressClass.
+  className: stg-spoke-nginx
   tls:
     enabled: false
     secretName: ""
