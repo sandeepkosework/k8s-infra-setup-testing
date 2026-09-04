@@ -7,6 +7,11 @@ tenant:
   name: hbss
   namespace: hbss
   domain: hbss-bridgestg.qraie.ai
+# Read directly by the ApplicationSet's own destination.server templating
+# ({{.argocdClusterServer}}) -- not a helm-chart-bridge value, just metadata
+# telling Argo CD where to deploy this tenant. Same field tenant-operator's
+# generated files carry (see qraie_bridge_values.yaml.j2).
+argocdClusterServer: https://192.168.85.203:6443
 imagePullSecrets:
 - ocir-regcred
 # Vault runs on the hub cluster; this tenant's pods run on the spoke, which
