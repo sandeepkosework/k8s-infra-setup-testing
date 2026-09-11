@@ -37,6 +37,10 @@ vault:
 ingress:
   className: stg-spoke-nginx
 
+services:
+  - name: qraie-redis-shared
+    replicas: 2
+
 # From this tenant's `services: {name: bool}` request field -- see
 # TenantCreateRequest.services and helm-chart-bridge/values.yaml's
 # `disabledServices` comment for why this is its own list rather than a
